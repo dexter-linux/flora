@@ -1,49 +1,91 @@
-body {
-    margin: 0;
-    background: radial-gradient(circle at center, #14213d, #0b132b);
-    font-family: Arial, Helvetica, sans-serif;
-    overflow: hidden;
-    transition: background 3s ease;
+/* Reset */
+*{
+box-sizing:border-box;
 }
 
-#app {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    width: 100vw;
+/* Page background */
+body{
+margin:0;
+background:linear-gradient(160deg,#14213d,#0b132b);
+font-family:Arial, Helvetica, sans-serif;
+overflow:hidden;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+width:100vw;
 }
 
-#canvas-holder {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Main container */
+#app{
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+height:100%;
+width:100%;
 }
 
-#controls {
-    margin-top: 20px;
+/* Canvas wrapper */
+#canvas-holder{
+display:flex;
+justify-content:center;
+align-items:center;
+max-width:100%;
 }
 
-button {
-    padding: 12px 25px;
-    border: none;
-    background: #ff7aa2;
-    color: white;
-    font-size: 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+/* Controls area */
+#controls{
+margin-top:20px;
+display:flex;
+justify-content:center;
+align-items:center;
 }
 
-button:hover {
-    background: #ff4f87;
+/* Button styling */
+button{
+padding:12px 28px;
+border:none;
+background:#ff7aa2;
+color:white;
+font-size:16px;
+border-radius:10px;
+cursor:pointer;
+transition:all 0.25s ease;
+box-shadow:0 6px 15px rgba(0,0,0,0.3);
 }
 
-@media (max-width: 768px) {
-    #canvas-holder canvas { width: 95vw !important; height: 75vh !important; }
+/* Button hover effect */
+button:hover{
+background:#ff4f87;
+transform:translateY(-2px);
 }
 
-@media (min-width: 769px) {
-    #canvas-holder canvas { width: 900px !important; height: 550px !important; }
+/* MOBILE (portrait layout) */
+@media (max-width:768px){
+
+#canvas-holder canvas{
+width:95vw !important;
+height:72vh !important;
+}
+
+#controls{
+margin-top:15px;
+}
+
+button{
+font-size:15px;
+padding:10px 24px;
+}
+
+}
+
+/* DESKTOP (landscape layout) */
+@media (min-width:769px){
+
+#canvas-holder canvas{
+width:900px !important;
+height:550px !important;
+}
+
 }
