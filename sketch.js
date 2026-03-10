@@ -1,179 +1,181 @@
 const canvas = document.getElementById('vaseCanvas');
 const ctx = canvas.getContext('2d');
 
-let state = 'GROWING'; // GROWING, SWAYING, WIND, RAIN
+let state = 'GROWING';
 let timer = 0;
-let particles = [];
 let flowers = [];
-let rainDrops = [];
+let particles = [];
+let bubbles = [];
 
 class Flower {
-    constructor(x, y, type, delay) {
+    constructor(x, y, type) {
         this.x = x;
         this.y = y;
-        this.type = type; // 'lily' or 'hydrangea'
+        this.type = type;
         this.size = 0;
-        this.maxSize = type === 'lily' ? 1 : 0.8;
-        this.delay = delay;
-        this.angle = 0;
+        this.maxSize = type === 'lily' ? 1.0 : 0.8;
+        this.bloomSpeed = 0.002 + Math.random() * 0.002;
+        this.seed = Math.random() * 1000;
+        // Variety in hydrangea colors
+        const hydrangeaColors = ['#a29bfe', '#fab1a0', '#81ecec', '#fd79a8'];
+        this.color = type === 'lily' ? '#ffffff' : hydrangeaColors[Math.floor(Math.random() * hydrangeaColors.length)];
     }
 
     draw(time) {
-        if (this.size < this.maxSize && state === 'GROWING') this.size += 0.005;
-        if (state === 'WIND') this.size -= 0.002;
+        if (state === 'GROWING' && this.size < this.maxSize) this.size += this.bloomSpeed;
+        if (state === 'WIND') this.size -= 0.005;
         
-        this.angle = Math.sin(time * 0.002 + this.x) * 0.05;
+        let sway = Math.sin(time * 0.001 + this.seed) * 0.1;
 
         ctx.save();
         ctx.translate(this.x, this.y);
-        ctx.rotate(this.angle);
+        ctx.rotate(sway);
         ctx.scale(this.size, this.size);
 
         if (this.type === 'lily') {
-            for (let i = 0; i < 6; i++) {
-                ctx.beginPath();
-                ctx.rotate((Math.PI * 2) / 6);
-                ctx.ellipse(0, 30, 12, 45, 0, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 240, 245, ${this.size})`;
-                ctx.fill();
-            }
+            this.drawLily();
         } else {
-            for (let i = 0; i < 20; i++) {
-                ctx.beginPath();
-                let rx = Math.cos(i) * 30;
-                let ry = Math.sin(i) * 30;
-                ctx.arc(rx, ry, 10, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(162, 155, 254, ${this.size})`;
-                ctx.fill();
-            }
+            this.drawHydrangea();
         }
         ctx.restore();
+    }
+
+    drawLily() {
+        for (let i = 0; i < 6; i++) {
+            ctx.save();
+            ctx.rotate((Math.PI * 2 / 6) * i);
+            let pGrad = ctx.createRadialGradient(0, 5, 0, 0, 30, 60);
+            pGrad.addColorStop(0, '#fff');
+            pGrad.addColorStop(1, '#ffe3ed');
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(-15, 25, -5, 65, 0, 70);
+            ctx.bezierCurveTo(5, 65, 15, 25, 0, 0);
+            ctx.fillStyle = pGrad;
+            ctx.fill();
+            ctx.restore();
+        }
+        ctx.fillStyle = "#ffd700";
+        ctx.beginPath(); ctx.arc(0,0,3,0,Math.PI*2); ctx.fill();
+    }
+
+    drawHydrangea() {
+        for (let i = 0; i < 30; i++) {
+            let px = Math.cos(i) * (i % 5 * 10);
+            let py = Math.sin(i) * (i % 5 * 10);
+            ctx.beginPath();
+            ctx.arc(px, py, 10, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.globalAlpha = 0.5;
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
     }
 }
 
-class Particle {
-    constructor(x, y, isDove = false) {
-        this.x = x;
-        this.y = y;
-        this.vx = (Math.random() - 0.5) * 5;
-        this.vy = Math.random() * 2 + 1;
-        this.isDove = isDove;
-        this.life = 1;
+function triggerBubbles(x, y) {
+    for (let i = 0; i < 8; i++) {
+        bubbles.push({
+            x: x, y: y,
+            vx: (Math.random() - 0.5) * 2,
+            vy: -Math.random() * 3 - 1,
+            r: Math.random() * 5 + 2,
+            life: 1
+        });
     }
+}
 
-    update() {
-        if (state === 'WIND') {
-            this.vx += 0.2; // Blow away
-            this.vy -= 0.1;
-            if (this.vx > 5) this.isDove = true; 
-        }
-        this.x += this.vx;
-        this.y += this.vy;
-    }
+function drawWater(cx, cy, time) {
+    ctx.save();
+    // Clip the water to the vase interior
+    ctx.beginPath();
+    ctx.moveTo(cx - 55, cy + 120);
+    ctx.bezierCurveTo(cx - 140, cy + 220, cx - 140, cy + 330, cx - 70, cy + 390);
+    ctx.lineTo(cx + 70, cy + 390);
+    ctx.bezierCurveTo(cx + 140, cy + 330, cx + 140, cy + 220, cx + 55, cy + 120);
+    ctx.clip();
 
-    draw() {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        if (this.isDove) {
-            // Draw a simple "V" shape for a majestic dove
-            ctx.beginPath();
-            let flap = Math.sin(Date.now() * 0.01) * 10;
-            ctx.moveTo(-10, flap);
-            ctx.quadraticCurveTo(0, -5, 10, flap);
-            ctx.strokeStyle = "white";
-            ctx.lineWidth = 2;
-            ctx.stroke();
-        } else {
-            ctx.beginPath();
-            ctx.arc(0, 0, 4, 0, Math.PI * 2);
-            ctx.fillStyle = "#ffb7c5";
-            ctx.fill();
-        }
-        ctx.restore();
+    // Water Body
+    const waterGrad = ctx.createLinearGradient(0, cy + 150, 0, cy + 400);
+    waterGrad.addColorStop(0, 'rgba(0, 150, 255, 0.2)');
+    waterGrad.addColorStop(1, 'rgba(0, 50, 150, 0.4)');
+    ctx.fillStyle = waterGrad;
+    ctx.fillRect(cx - 200, cy + 150, 400, 300);
+
+    // Water Surface (Sine Wave)
+    ctx.beginPath();
+    ctx.moveTo(cx - 150, cy + 180);
+    for (let x = -150; x <= 150; x += 5) {
+        let y = Math.sin(x * 0.05 + time * 0.003) * 5;
+        ctx.lineTo(cx + x, cy + 180 + y);
     }
+    ctx.lineTo(cx + 150, cy + 400);
+    ctx.lineTo(cx - 150, cy + 400);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fill();
+    ctx.restore();
 }
 
 function initScene() {
-    flowers = [
-        new Flower(450, 250, 'lily', 0),
-        new Flower(380, 280, 'hydrangea', 10),
-        new Flower(520, 280, 'hydrangea', 20),
-        new Flower(450, 180, 'lily', 30)
-    ];
-    particles = [];
-}
-
-function drawVase(cx, cy) {
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.beginPath();
-    ctx.moveTo(cx - 50, cy - 100);
-    ctx.bezierCurveTo(cx - 100, cy, cx - 100, cy + 150, cx - 50, cy + 200);
-    ctx.lineTo(cx + 50, cy + 200);
-    ctx.bezierCurveTo(cx + 100, cy + 150, cx + 100, cy, cx + 50, cy - 100);
-    ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = "rgba(255,255,255,0.3)";
-    ctx.stroke();
+    flowers = [];
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2 - 120;
+    for (let i = 0; i < 18; i++) {
+        let type = Math.random() > 0.4 ? 'hydrangea' : 'lily';
+        let rx = cx + (Math.random() - 0.5) * 280;
+        let ry = cy + (Math.random() - 0.5) * 180;
+        flowers.push(new Flower(rx, ry, type));
+    }
 }
 
 function animate(time) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const cx = canvas.width / 2;
-    const cy = canvas.height / 2 + 50;
+    const cy = canvas.height / 2 - 150;
 
-    // Handle States
     timer++;
-    if (state === 'GROWING' && timer > 200) state = 'SWAYING';
-    if (state === 'SWAYING' && timer > 500) state = 'WIND';
-    if (state === 'WIND' && timer > 800) {
-        state = 'RAIN';
-        document.body.style.background = "#070b14";
-    }
-    if (state === 'RAIN' && timer > 1100) {
-        state = 'GROWING';
-        timer = 0;
-        document.body.style.background = "radial-gradient(circle at center, #14213d, #0b132b)";
-        initScene();
-    }
+    if (state === 'GROWING' && timer > 300) state = 'SWAYING';
+    if (state === 'SWAYING' && timer > 800) state = 'WIND';
+    if (state === 'WIND' && timer > 1100) state = 'RAIN';
+    if (state === 'RAIN' && timer > 1400) { state = 'GROWING'; timer = 0; initScene(); }
 
-    // Draw Stems
-    ctx.strokeStyle = "#2d4a22";
-    ctx.lineWidth = 4;
+    // 1. Water & Stems
+    drawWater(cx, cy, time);
+    
+    ctx.strokeStyle = "rgba(40, 80, 40, 0.3)";
     flowers.forEach(f => {
         ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.quadraticCurveTo(cx, f.y + 50, f.x, f.y);
+        ctx.moveTo(cx, cy + 300);
+        ctx.quadraticCurveTo(cx, cy + 150, f.x, f.y);
         ctx.stroke();
     });
 
-    // Draw Flowers
+    // 2. Flowers
     flowers.forEach(f => f.draw(time));
 
-    // Petals & Doves
-    if (state === 'SWAYING' && Math.random() < 0.05) {
-        particles.push(new Particle(cx + (Math.random()-0.5)*100, cy - 200));
-    }
-    
-    particles.forEach((p, i) => {
-        p.update();
-        p.draw();
-        if (p.x > canvas.width || p.y > canvas.height) particles.splice(i, 1);
+    // 3. Bubbles
+    bubbles.forEach((b, i) => {
+        b.x += b.vx; b.y += b.vy; b.life -= 0.01;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255,255,255,${b.life})`;
+        ctx.stroke();
+        if (b.life <= 0) bubbles.splice(i, 1);
     });
 
-    // Rain
-    if (state === 'RAIN') {
-        ctx.strokeStyle = "rgba(174, 194, 224, 0.5)";
-        for(let i=0; i<10; i++) {
-            let x = Math.random() * canvas.width;
-            let y = Math.random() * canvas.height;
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-            ctx.lineTo(x, y + 15);
-            ctx.stroke();
-        }
-    }
+    // 4. Vase Front
+    const vGrad = ctx.createLinearGradient(cx - 100, 0, cx + 100, 0);
+    vGrad.addColorStop(0, 'rgba(20, 30, 48, 0.9)');
+    vGrad.addColorStop(0.5, 'rgba(100, 120, 160, 0.2)');
+    vGrad.addColorStop(1, 'rgba(20, 30, 48, 0.9)');
+    ctx.beginPath();
+    ctx.moveTo(cx - 60, cy + 100);
+    ctx.bezierCurveTo(cx - 150, cy + 200, cx - 150, cy + 350, cx - 70, cy + 400);
+    ctx.lineTo(cx + 70, cy + 400);
+    ctx.bezierCurveTo(cx + 150, cy + 350, cx + 150, cy + 200, cx + 60, cy + 100);
+    ctx.fillStyle = vGrad; ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.stroke();
 
-    drawVase(cx, cy);
     requestAnimationFrame(animate);
 }
 
