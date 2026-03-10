@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Majestic Cycle: Lilies & Doves</title>
+    <title>A Bouquet for Mideva</title>
     <style>
         body {
             margin: 0;
             background: radial-gradient(circle at center, #14213d, #0b132b);
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Georgia', serif;
             overflow: hidden;
             transition: background 3s ease;
-            color: white;
+            user-select: none;
+            touch-action: none; /* Prevents zooming on mobile taps */
         }
 
         #app {
@@ -23,98 +24,71 @@
             width: 100vw;
         }
 
-        #canvas-holder {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
-        /* Glass glow effect behind the canvas */
-        #canvas-holder::after {
-            content: '';
+        #message-overlay {
             position: absolute;
-            width: 300px;
-            height: 400px;
-            background: rgba(162, 155, 254, 0.1);
-            filter: blur(80px);
-            z-index: -1;
+            top: 40%;
+            font-size: 3rem;
+            color: #ffccd5;
+            text-shadow: 0 0 20px rgba(255, 182, 193, 0.8);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 2s ease;
+            font-style: italic;
+            z-index: 100;
         }
 
-        #controls {
-            margin-top: 30px;
-            text-align: center;
+        .fade-in-out {
+            animation: fadeInOut 5s forwards;
         }
 
-        #status-text {
-            margin-bottom: 10px;
-            font-size: 14px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            opacity: 0.6;
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            20% { opacity: 1; transform: translateY(0); }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
         }
 
-        button {
-            padding: 12px 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 122, 162, 0.8);
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            backdrop-filter: blur(5px);
-            transition: all 0.3s ease;
-        }
-
-        button:hover {
-            background: #ff4f87;
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 79, 135, 0.4);
-        }
-
-        /* Responsive Canvas sizing */
-        @media (max-width: 768px) {
-            #vaseCanvas { width: 95vw !important; height: auto !important; }
-        }
-        @media (min-width: 769px) {
-            #vaseCanvas { width: 900px !important; height: 550px !important; }
+        canvas {
+            max-width: 100vw;
+            max-height: 80vh;
         }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <div id="status-text">Watching the garden grow...</div>
+    <div id="message-overlay">I love you Mideva</div>
     
-    <div id="canvas-holder">
-        <canvas id="vaseCanvas" width="900" height="550"></canvas>
+    <div id="canvas-holder" onclick="handleInteraction(event)" ontouchstart="handleInteraction(event)">
+        <canvas id="vaseCanvas" width="900" height="700"></canvas>
     </div>
 
-    <div id="controls">
-        <button onclick="resetCycle()">Restart Life Cycle</button>
-    </div>
+    <audio id="bgm" loop>
+        <source src="song.mp3" type="audio/mpeg">
+    </audio>
 </div>
 
 <script src="sketch.js"></script>
-
 <script>
-    // Small helper to update the status text based on the JS state
-    setInterval(() => {
-        const status = document.getElementById('status-text');
-        if (typeof state !== 'undefined') {
-            status.innerText = "Current Phase: " + state;
-        }
-    }, 500);
+    function handleInteraction(e) {
+        // Play music on first interaction (browser requirement)
+        const audio = document.getElementById('bgm');
+        if (audio.paused) audio.play();
 
-    function resetCycle() {
-        if (typeof initScene === 'function') {
-            timer = 0;
-            state = 'GROWING';
-            initScene();
+        // Show Message
+        const msg = document.getElementById('message-overlay');
+        msg.classList.remove('fade-in-out');
+        void msg.offsetWidth; // Trigger reflow
+        msg.classList.add('fade-in-out');
+
+        // Trigger Bubbles in JS
+        if (typeof triggerBubbles === 'function') {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            triggerBubbles(x, y);
         }
     }
 </script>
-
 </body>
 </html>
