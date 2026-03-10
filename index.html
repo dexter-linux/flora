@@ -1,76 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Snooker Game</title>
-  
-  <!-- p5.js library from CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
-  
-  <!-- Your game logic -->
-  <script src="sketch.js"></script>
-  
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      background: #111;
-      font-family: Arial, Helvetica, sans-serif;
-      color: #eee;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Majestic Cycle: Lilies & Doves</title>
+    <style>
+        body {
+            margin: 0;
+            background: radial-gradient(circle at center, #14213d, #0b132b);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            overflow: hidden;
+            transition: background 3s ease;
+            color: white;
+        }
 
-    canvas {
-      border: 3px solid #444;
-      box-shadow: 0 0 30px rgba(0,0,0,0.8);
-      background: #0a3d0a;   /* fallback dark green if loading is slow */
-    }
+        #app {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
 
-    /* Basic styling for p5.js created buttons */
-    button {
-      padding: 12px 24px;
-      font-size: 18px;
-      margin: 12px;
-      cursor: pointer;
-      border: none;
-      border-radius: 6px;
-      background: #2a6b2a;
-      color: white;
-      transition: all 0.2s;
-    }
+        #canvas-holder {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
 
-    button:hover {
-      background: #3a8b3a;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    }
+        /* Glass glow effect behind the canvas */
+        #canvas-holder::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 400px;
+            background: rgba(162, 155, 254, 0.1);
+            filter: blur(80px);
+            z-index: -1;
+        }
 
-    button:active {
-      transform: translateY(1px);
-    }
+        #controls {
+            margin-top: 30px;
+            text-align: center;
+        }
 
-    h1 {
-      position: absolute;
-      top: 30px;
-      font-size: 2.8rem;
-      color: #ffeb3b;
-      text-shadow: 0 0 15px #ff9800;
-      pointer-events: none;
-      user-select: none;
-    }
-  </style>
+        #status-text {
+            margin-bottom: 10px;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 122, 162, 0.8);
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #ff4f87;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 79, 135, 0.4);
+        }
+
+        /* Responsive Canvas sizing */
+        @media (max-width: 768px) {
+            #vaseCanvas { width: 95vw !important; height: auto !important; }
+        }
+        @media (min-width: 769px) {
+            #vaseCanvas { width: 900px !important; height: 550px !important; }
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Optional title overlay (appears above canvas) -->
-  <h1>Snooker</h1>
+<div id="app">
+    <div id="status-text">Watching the garden grow...</div>
+    
+    <div id="canvas-holder">
+        <canvas id="vaseCanvas" width="900" height="550"></canvas>
+    </div>
 
-  <!-- The canvas will be created automatically by p5.js in sketch.js -->
+    <div id="controls">
+        <button onclick="resetCycle()">Restart Life Cycle</button>
+    </div>
+</div>
+
+<script src="sketch.js"></script>
+
+<script>
+    // Small helper to update the status text based on the JS state
+    setInterval(() => {
+        const status = document.getElementById('status-text');
+        if (typeof state !== 'undefined') {
+            status.innerText = "Current Phase: " + state;
+        }
+    }, 500);
+
+    function resetCycle() {
+        if (typeof initScene === 'function') {
+            timer = 0;
+            state = 'GROWING';
+            initScene();
+        }
+    }
+</script>
 
 </body>
 </html>
