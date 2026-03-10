@@ -14,7 +14,7 @@ class Flower {
         this.type = type;
         this.size = 0;
         this.maxSize = type === 'lily' ? 1.0 : 0.8;
-        this.bloomSpeed = 0.002 + Math.random() * 0.002;
+        this.bloomSpeed = 0.02 + Math.random() * 0.02;
         this.seed = Math.random() * 1000;
         // Variety in hydrangea colors
         const hydrangeaColors = ['#a29bfe', '#fab1a0', '#81ecec', '#fd79a8'];
@@ -41,7 +41,7 @@ class Flower {
     }
 
     drawLily() {
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 10; i++) {
             ctx.save();
             ctx.rotate((Math.PI * 2 / 6) * i);
             let pGrad = ctx.createRadialGradient(0, 5, 0, 0, 30, 60);
