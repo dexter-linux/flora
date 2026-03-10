@@ -1,33 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Snooker Game</title>
+  
+  <!-- p5.js library from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+  
+  <!-- Your game logic -->
+  <script src="sketch.js"></script>
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: #111;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
 
-<title>Flower Vase</title>
+    canvas {
+      border: 3px solid #444;
+      box-shadow: 0 0 30px rgba(0,0,0,0.8);
+      background: #0a3d0a;   /* fallback dark green if loading is slow */
+    }
 
-<link rel="stylesheet" href="style.css">
+    /* Basic styling for p5.js created buttons */
+    button {
+      padding: 12px 24px;
+      font-size: 18px;
+      margin: 12px;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background: #2a6b2a;
+      color: white;
+      transition: all 0.2s;
+    }
 
-<!-- p5 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
+    button:hover {
+      background: #3a8b3a;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
 
+    button:active {
+      transform: translateY(1px);
+    }
+
+    h1 {
+      position: absolute;
+      top: 30px;
+      font-size: 2.8rem;
+      color: #ffeb3b;
+      text-shadow: 0 0 15px #ff9800;
+      pointer-events: none;
+      user-select: none;
+    }
+  </style>
 </head>
-
 <body>
 
-<div id="app">
+  <!-- Optional title overlay (appears above canvas) -->
+  <h1>Snooker</h1>
 
-<div id="canvas-holder"></div>
-
-<div id="controls">
-<button id="switchVase">Switch Vase</button>
-</div>
-
-</div>
-
-<script src="sketch.js"></script>
+  <!-- The canvas will be created automatically by p5.js in sketch.js -->
 
 </body>
 </html>
